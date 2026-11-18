@@ -1,0 +1,32 @@
+{
+  "case_id": "csg-procurement-ai",
+  "title": "采购 AI 数字员工建设项目",
+  "buyer": "南方电网供应链集团有限公司",
+  "project_id": "CG2700022002374581",
+  "snapshot_version": "csg-2026-11-18",
+  "sample_as_of": "2026-10-22",
+  "sample_input": "供应商经常来问什么时候截标，我们的采购同事也想直接问项目现在走到哪一步了。",
+  "sources": [
+    {
+      "evidence_id": "csg-tender",
+      "project_id": "CG2700022002374581",
+      "kind": "tender",
+      "title": "招标公告",
+      "url": "https://www.bidding.csg.cn/zbgg/1200442355.jhtml",
+      "published_at": "2026-09-11T16:55:37+08:00",
+      "locator": "第 2 节项目概况与第 5.3 项投标文件递交截止时间",
+      "excerpt": "第 2 节列出采购问答、数据查询、流程办理和智能写作。第 5.3 项的投标递交截止时间为北京时间 2026 年 10 月 13 日 09:00。",
+      "tender_deadline": "2026-10-13T09:00:00+08:00"
+    },
+    {
+      "evidence_id": "csg-candidates",
+      "project_id": "CG2700022002374581",
+      "kind": "candidate",
+      "title": "中标候选人公示",
+      "url": "https://www.bidding.csg.cn/zbhxrgs/1200446532.jhtml",
+      "published_at": "2026-10-21T15:39:22+08:00",
+      "locator": "页首发布时间、采购编号和公示起止日期",
+      "excerpt": "同一采购编号的中标候选人公示于 2026 年 10 月 21 日发布，页面列出的公示期为 10 月 21 日至 26 日。"
+    }
+  ]
+}

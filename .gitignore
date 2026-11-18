@@ -1,0 +1,6 @@
+/workspace/
+/.setup-*/
+.env
+.env.*
+__pycache__/
+*.py[cod]

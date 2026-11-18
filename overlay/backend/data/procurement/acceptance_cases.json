@@ -1,0 +1,53 @@
+[
+  {
+    "case_id": "T05",
+    "requirement_id": "R01",
+    "title": "原公告截标时间",
+    "question": "按原招标公告，投标文件什么时候截止递交？",
+    "project_id": "CG2700022002374581",
+    "as_of": "2026-10-22",
+    "expected": {
+      "status": "answered",
+      "value": "2026-10-13T09:00:00+08:00",
+      "evidence_ids": ["csg-tender"]
+    }
+  },
+  {
+    "case_id": "T06",
+    "requirement_id": "R02",
+    "title": "候选人公示阶段",
+    "question": "截至指定日期，项目走到哪个公开阶段了？",
+    "project_id": "CG2700022002374581",
+    "as_of": "2026-10-22",
+    "expected": {
+      "status": "answered",
+      "value": "已发布中标候选人公示",
+      "evidence_ids": ["csg-candidates"]
+    }
+  },
+  {
+    "case_id": "T07",
+    "requirement_id": "R02",
+    "title": "公示发布前的历史查询",
+    "question": "截至指定日期，能核实的最近公开阶段是什么？",
+    "project_id": "CG2700022002374581",
+    "as_of": "2026-10-20",
+    "expected": {
+      "status": "answered",
+      "value": "已发布招标公告",
+      "evidence_ids": ["csg-tender"]
+    }
+  },
+  {
+    "case_id": "T08",
+    "requirement_id": "R02",
+    "title": "未知采购编号",
+    "question": "这个采购编号的公开进度是什么？",
+    "project_id": "CG0000000000000000",
+    "as_of": "2026-10-22",
+    "expected": {
+      "status": "insufficient_evidence",
+      "evidence_ids": []
+    }
+  }
+]

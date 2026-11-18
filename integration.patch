@@ -1,0 +1,164 @@
+diff --git a/backend/app/main.py b/backend/app/main.py
+index 05e9d84..4432cf3 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -10 +10 @@ from app.config.settings import settings
+-from app.routes import dashboard, evaluation, knowledge, projects
++from app.routes import dashboard, evaluation, knowledge, procurement, projects
+@@ -29,0 +30 @@ app.include_router(evaluation.router)
++app.include_router(procurement.router)
+diff --git a/backend/app/services/llm_provider.py b/backend/app/services/llm_provider.py
+index e6ed262..6c640a5 100644
+--- a/backend/app/services/llm_provider.py
++++ b/backend/app/services/llm_provider.py
+@@ -19 +19,3 @@ from app.config.settings import settings
+-def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatModel:
++def get_llm(
++    temperature: float = 0.0, provider: str = "deepseek", *, timeout: float | None = None
++) -> BaseChatModel:
+@@ -29,0 +32 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
++        options = {} if timeout is None else {"timeout": timeout, "max_retries": 0}
+@@ -34,0 +38 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
++            **options,
+@@ -44,0 +49,2 @@ def invoke_structured(
++    *,
++    timeout: float | None = None,
+@@ -52 +58 @@ def invoke_structured(
+-    runnable = get_llm(temperature=temperature).with_structured_output(
++    runnable = get_llm(temperature=temperature, timeout=timeout).with_structured_output(
+diff --git a/backend/requirements.txt b/backend/requirements.txt
+index 56e0eeb..3c1893d 100644
+--- a/backend/requirements.txt
++++ b/backend/requirements.txt
+@@ -17,0 +18 @@ langgraph
++langgraph-checkpoint-sqlite
+diff --git a/frontend/src/App.tsx b/frontend/src/App.tsx
+index bb08d39..85a5b0c 100644
+--- a/frontend/src/App.tsx
++++ b/frontend/src/App.tsx
+@@ -5,0 +6 @@ import KnowledgeBase from './pages/KnowledgeBase'
++import Procurement from './pages/Procurement'
+@@ -21,0 +23 @@ export default function App() {
++        <Route path="/procurement/:sessionId?" element={<Procurement />} />
+diff --git a/frontend/src/api/client.ts b/frontend/src/api/client.ts
+index 83749ec..c044ff2 100644
+--- a/frontend/src/api/client.ts
++++ b/frontend/src/api/client.ts
+@@ -4,0 +5,2 @@ import type {
++  ProcurementCase,
++  ProcurementSession,
+@@ -41,0 +44,14 @@ export const api = {
++  procurementCase: () => request<ProcurementCase>('/api/procurement/case'),
++  startProcurement: (case_id: string, user_input: string) =>
++    request<ProcurementSession>('/api/procurement/sessions', {
++      method: 'POST',
++      body: JSON.stringify({ case_id, user_input }),
++    }),
++  procurementSession: (id: string) =>
++    request<ProcurementSession>(`/api/procurement/sessions/${id}`),
++  resumeProcurement: (id: string, question_id: string, answer: string) =>
++    request<ProcurementSession>(`/api/procurement/sessions/${id}/resume`, {
++      method: 'POST',
++      body: JSON.stringify({ question_id, answer }),
++    }),
++  procurementReport: (id: string) => `/api/procurement/sessions/${id}/report`,
+diff --git a/frontend/src/components/Layout.tsx b/frontend/src/components/Layout.tsx
+index ac62a2d..4897146 100644
+--- a/frontend/src/components/Layout.tsx
++++ b/frontend/src/components/Layout.tsx
+@@ -5,0 +6 @@ const NAV = [
++  { to: '/procurement', label: '采购 PoC' },
+@@ -11,4 +12,4 @@ export default function Layout() {
+-    <div className="flex h-screen bg-gray-50 text-gray-900">
+-      <aside className="flex w-56 shrink-0 flex-col bg-blue-900 text-white">
+-        <div className="px-5 py-5 text-lg font-semibold">AI Solution Copilot</div>
+-        <nav className="flex-1 space-y-1 px-3">
++    <div className="flex h-screen flex-col bg-gray-50 text-gray-900 md:flex-row">
++      <aside className="flex shrink-0 flex-col bg-blue-900 text-white md:w-56">
++        <div className="px-5 pb-2 pt-3 text-lg font-semibold md:py-5">AI Solution Copilot</div>
++        <nav aria-label="主导航" className="flex gap-1 overflow-auto px-3 pb-2 md:block md:flex-1 md:space-y-1 md:pb-0">
+@@ -20 +21 @@ export default function Layout() {
+-                `block rounded px-3 py-2 text-sm ${
++                `block whitespace-nowrap rounded px-3 py-2 text-sm ${
+@@ -29 +30 @@ export default function Layout() {
+-        <div className="px-5 py-4 text-xs text-slate-400">企业级 AI 售前智能体</div>
++        <div className="hidden px-5 py-4 text-xs text-slate-400 md:block">企业级 AI 售前智能体</div>
+@@ -31 +32 @@ export default function Layout() {
+-      <main className="flex-1 overflow-auto">
++      <main className="min-h-0 min-w-0 flex-1 overflow-auto">
+diff --git a/frontend/src/types.ts b/frontend/src/types.ts
+index e675c1a..1550b73 100644
+--- a/frontend/src/types.ts
++++ b/frontend/src/types.ts
+@@ -55,0 +56,71 @@ export interface DashboardStats {
++
++export interface ProcurementEvidence {
++  evidence_id: string
++  title: string
++  url: string
++  published_at: string
++  locator: string
++  excerpt: string
++}
++
++export interface ProcurementCase {
++  case_id: string
++  title: string
++  buyer: string
++  project_id: string
++  snapshot_version: string
++  sample_input: string
++  sources: ProcurementEvidence[]
++}
++
++export interface PublicAnswer {
++  status: 'answered' | 'insufficient_evidence' | 'unsupported_question'
++  value: string | null
++  evidence_ids: string[]
++}
++
++export interface ProcurementResult {
++  case: {
++    case_id: string
++    requirement_id: string
++    title: string
++    question: string
++    project_id: string
++    as_of: string
++    expected: PublicAnswer
++  }
++  outcome: 'passed' | 'failed' | 'error'
++  actual: PublicAnswer | null
++  attempts: { status: 'returned' | 'timeout' | 'error'; elapsed_ms: number; detail: string | null }[]
++  issues: string[]
++  reviewed: ProcurementEvidence[]
++}
++
++export interface ProcurementSession {
++  session_id: string
++  snapshot_version: string
++  user_input: string
++  mode: 'deepseek' | 'rules'
++  status: 'need_clarification' | 'running' | 'completed'
++  scope: 'public_only' | 'public_and_internal' | 'unknown'
++  pending_question: { question_id: string; text: string } | null
++  clarifications: { question_id: string; text: string; answer: string }[]
++  plan: {
++    summary: string
++    requirements: {
++      requirement_id: string
++      description: string
++      evidence_ids: string[]
++      origin: 'case_scope' | 'customer_reply'
++      scope_status: 'in_scope' | 'pending_integration'
++    }[]
++    integration_checks: { dependency: string; needed: string; scenario: string; expected: string }[]
++  } | null
++  results: ProcurementResult[]
++  trace: {
++    step: 'discovery' | 'clarification' | 'solution' | 'verification'
++    ts: string
++    note: string
++    case_id: string | null
++  }[]
++}
