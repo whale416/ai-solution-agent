@@ -18,7 +18,7 @@
 
 ## 本地启动
 
-准备 Git、Python 3.12 和 Node.js。在 PowerShell 中组装项目。
+准备 Git、Python 3.12 和 Node.js。首次克隆时，在 PowerShell 中组装项目。
 
 ```powershell
 git clone https://github.com/whale416/ai-solution-agent.git
@@ -26,7 +26,7 @@ cd ai-solution-agent
 python setup_workspace.py
 ```
 
-组装后，在仓库根目录打开两个终端。
+已有 `workspace/` 时，从仓库根目录打开两个终端，分别启动后端和前端。
 
 ```powershell
 # 后端终端
@@ -64,10 +64,13 @@ cd workspace/backend
 ai-solution-agent/
 ├─ setup_workspace.py       # 获取上游版本并组装本地工作区
 ├─ integration.patch        # 路由、依赖和界面的接入改动
-└─ overlay/
-   ├─ backend/              # 采购工作流、公告数据与回归测试
-   ├─ frontend/             # 采购 PoC 页面
-   └─ docs/                 # 演示与实现说明
+├─ overlay/
+│  ├─ backend/              # 采购工作流、公告数据与回归测试
+│  ├─ frontend/             # 采购 PoC 页面
+│  └─ docs/                 # 演示与实现说明
+└─ workspace/               # 组装脚本生成的本地运行目录
+   ├─ backend/
+   └─ frontend/
 ```
 
-会话检查点保存在本地 `workspace/backend/data/procurement.sqlite`。完整演示顺序、API 和代码位置见[采购 PoC 实现说明](overlay/docs/PROCUREMENT_POC.md)。
+Git 忽略整个 `workspace/`。API 配置保存在 `workspace/backend/.env`，会话检查点保存在 `workspace/backend/data/procurement.sqlite`。完整演示顺序、API 和代码位置见[采购 PoC 实现说明](overlay/docs/PROCUREMENT_POC.md)。
