@@ -4,7 +4,7 @@
 
 ## 启动
 
-在组装好的工作区根目录 workspace 下打开两个 PowerShell 终端。已安装依赖时，直接执行各终端的最后一条启动命令。
+在 `ai-solution-agent/workspace` 打开两个 PowerShell 终端。已安装依赖时，直接执行各终端的最后一条启动命令。
 
 ```powershell
 # 后端终端
@@ -21,7 +21,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-打开 [采购 PoC](http://127.0.0.1:5173/procurement)，也可从原工作台的侧栏进入。无密钥时采用规则演示，实际查询公告快照并运行校验。已有可用的 DeepSeek 配置时，将 `DEEPSEEK_API_KEY` 等参数写入 `backend/.env`，新建会话会启用模型辅助的范围识别和方案设计。模型异常时会回退到本地规则，执行轨迹会记录当次回退。
+打开 [采购 PoC](http://127.0.0.1:5173/procurement)，也可从原工作台的侧栏进入。无密钥时采用规则演示，实际查询公告快照并运行校验。配置 `backend/.env` 中的 `DEEPSEEK_API_KEY`、`DEEPSEEK_MODEL=deepseek-flash` 和 `DEEPSEEK_BASE_URL=https://api.deepseek.com`，重启后端再新建会话可启用模型辅助。DeepSeek 官方接口的结构化输出请求关闭思考模式以支持指定工具。模型异常时执行轨迹会记录当次回退。[DeepSeek 中文接入文档](https://api-docs.deepseek.com/zh-cn/) · [对话补全接口](https://api-docs.deepseek.com/zh-cn/api/create-chat-completion/)
 
 ## 演示两条路径
 
@@ -61,4 +61,4 @@ cd frontend
 npm run build
 ```
 
-回归覆盖 A/B 路径、含糊答复、公告日期截断、未知采购编号、引用错误、工具超时、重启恢复和独立报告。模型辅助的路由与校验使用测试替身覆盖，可在配置实际 provider 后另跑现场对话。
+15 条回归覆盖 A/B 路径、含糊答复、公告日期截断、未知采购编号、引用错误、工具超时、重启恢复、独立报告和 DeepSeek 结构化请求参数。真实 `deepseek-flash` 已在公开进度与内部审批路径完成澄清和方案设计，四条公开用例通过。

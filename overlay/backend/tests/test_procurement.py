@@ -13,6 +13,7 @@ from app.config.settings import BACKEND_DIR, settings
 from app.main import app
 from app.models.procurement import PublicAnswer
 from app.routes.procurement import session_store
+from app.services.llm_provider import get_llm, invoke_structured
 from app.services.procurement_sessions import ProcurementSessions
 from app.services.procurement_sources import load_case
 
@@ -169,6 +170,26 @@ class ProcurementTest(unittest.TestCase):
             "question_id": first["pending_question"]["question_id"], "answer": BOTH,
         })
         self.assertEqual(res.status_code, 409)
+
+    def test_deepseek_structured_output_disables_thinking(self):
+        expected = ScopeDecision(scope="public_only")
+        with (
+            patch.object(settings, "deepseek_base_url", "https://api.deepseek.com"),
+            patch("app.services.llm_provider.ChatOpenAI") as chat_model,
+        ):
+            chat_model.return_value.with_structured_output.return_value.invoke.return_value = expected
+            result = invoke_structured(ScopeDecision, [("human", PUBLIC)], retries=1, timeout=12)
+            self.assertEqual(result, expected)
+            self.assertEqual(chat_model.call_args.kwargs["extra_body"], {"thinking": {"type": "disabled"}})
+            get_llm()
+            self.assertNotIn("extra_body", chat_model.call_args.kwargs)
+
+        with (
+            patch.object(settings, "deepseek_base_url", "https://compat.example.test/v1"),
+            patch("app.services.llm_provider.ChatOpenAI") as chat_model,
+        ):
+            get_llm(structured_output=True)
+            self.assertNotIn("extra_body", chat_model.call_args.kwargs)
 
     def test_model_suggestions_still_execute_real_checks(self):
         with (

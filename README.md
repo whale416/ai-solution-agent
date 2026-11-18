@@ -47,11 +47,11 @@ macOS 和 Linux 可将后端命令中的 `.\.venv\Scripts\python.exe` 换成 `.v
 
 打开 [本地采购 PoC](http://127.0.0.1:5173/procurement)，先点「开始澄清」，再选择模拟答复。完成后可以展开工具记录、查看官方出处，或下载 Markdown 验收报告。
 
-默认规则模式无需模型密钥，公告查询和验收照常执行。配置 `workspace/backend/.env` 中的 `DEEPSEEK_API_KEY` 等参数后，新会话可使用模型辅助澄清和方案设计。验证结果由工具执行和校验程序产生。
+默认规则模式无需模型密钥，公告查询和验收照常执行。在 `workspace/backend/.env` 填写 `DEEPSEEK_API_KEY`、`DEEPSEEK_MODEL=deepseek-flash` 和 `DEEPSEEK_BASE_URL=https://api.deepseek.com`，重启后端后，新会话可使用模型辅助澄清和方案设计。DeepSeek 官方接口的结构化输出请求使用非思考模式，满足指定工具的要求。验收结论由工具执行和校验程序产生。[DeepSeek 中文接入文档](https://api-docs.deepseek.com/zh-cn/) · [对话补全接口](https://api-docs.deepseek.com/zh-cn/api/create-chat-completion/)
 
 ## 验证
 
-两条路径均在本地 Chrome 完成验证，每条路径的 4 个公开用例全部通过。14 条后端回归测试及前端生产构建通过，另实测后端重启后可继续原有澄清会话。浏览器使用规则模式，DeepSeek 接入使用测试替身覆盖。
+两条规则模式路径均在本地 Chrome 完成验证，每条路径的 4 个公开用例全部通过。模型辅助模式实测使用 `deepseek-flash` 完成澄清和方案设计，浏览器执行轨迹可查，公开用例通过 4 条。15 条后端回归测试及前端生产构建通过，另实测后端重启后可继续原有澄清会话。
 
 ```powershell
 cd workspace/backend

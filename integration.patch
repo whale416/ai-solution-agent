@@ -8,24 +8,38 @@ index 05e9d84..4432cf3 100644
 @@ -29,0 +30 @@ app.include_router(evaluation.router)
 +app.include_router(procurement.router)
 diff --git a/backend/app/services/llm_provider.py b/backend/app/services/llm_provider.py
-index e6ed262..6c640a5 100644
+index e6ed262..5325825 100644
 --- a/backend/app/services/llm_provider.py
 +++ b/backend/app/services/llm_provider.py
-@@ -19 +19,3 @@ from app.config.settings import settings
+@@ -10,0 +11 @@ from typing import Any
++from urllib.parse import urlsplit
+@@ -19 +20,7 @@ from app.config.settings import settings
 -def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatModel:
 +def get_llm(
-+    temperature: float = 0.0, provider: str = "deepseek", *, timeout: float | None = None
-+) -> BaseChatModel:
-@@ -29,0 +32 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
-+        options = {} if timeout is None else {"timeout": timeout, "max_retries": 0}
-@@ -34,0 +38 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
-+            **options,
-@@ -44,0 +49,2 @@ def invoke_structured(
++    temperature: float = 0.0,
++    provider: str = "deepseek",
 +    *,
 +    timeout: float | None = None,
-@@ -52 +58 @@ def invoke_structured(
++    structured_output: bool = False,
++) -> BaseChatModel:
+@@ -29,0 +37,6 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
++        options: dict[str, Any] = {}
++        if timeout is not None:
++            options.update(timeout=timeout, max_retries=0)
++        if structured_output and urlsplit(settings.deepseek_base_url).hostname == "api.deepseek.com":
++            # DeepSeek requires non-thinking mode for a forced tool choice.
++            options["extra_body"] = {"thinking": {"type": "disabled"}}
+@@ -34,0 +48 @@ def get_llm(temperature: float = 0.0, provider: str = "deepseek") -> BaseChatMod
++            **options,
+@@ -44,0 +59,2 @@ def invoke_structured(
++    *,
++    timeout: float | None = None,
+@@ -52,3 +68,2 @@ def invoke_structured(
 -    runnable = get_llm(temperature=temperature).with_structured_output(
-+    runnable = get_llm(temperature=temperature, timeout=timeout).with_structured_output(
+-        model, method="function_calling"
+-    )
++    llm = get_llm(temperature=temperature, timeout=timeout, structured_output=True)
++    runnable = llm.with_structured_output(model, method="function_calling")
 diff --git a/backend/requirements.txt b/backend/requirements.txt
 index 56e0eeb..3c1893d 100644
 --- a/backend/requirements.txt
